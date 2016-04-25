@@ -23,30 +23,30 @@ $ mkdir build; cd build; cmake .. ; make
 
 This code compiles into binary **grabcut_annotation**
 
-./grabcut_annotation <image_name>
+./grabcut_annotation *image_name*
 - Select a rectangular area around the object you want to segment
 
-./grabcut_annotation <images.txt> <groundtruth.txt (file may be empty)> <start_frame=0>
+./grabcut_annotation *images.txt* *groundtruth.txt*(file may be empty) *start_frame*=0
 - Use VOT (http://www.votchallenge.net/) format  to annotate sequence from gt or by hand (expect images.txt and optionally groundtruth.txt)
     - images.txt list of sequence images with absolute path
     - groundtruth.txt bounding boxes for the files in images.txt in the format "top_left_x, top_left_y, width, height" or 
            four corner points listed clockwise starting from bottom left corner.
 
 Hot keys:
-- ESC: quit the program
-- r: restore the original image
-- a:  apply next iteration of grabcut
-- s: save segmentation (go to the next img if vot format)
-- t: toggle on/off image m_overlay in visualization
-- e: toggle on/off enclosing rectangle in visualization
-- f: skip current frame
-- left mouse button: set rectangle
-- CTRL+left mouse button:  set BACKGROUND pixels
-- SHIFT+left mouse button: set FOREGREOUND pixels
+- **ESC**: quit the program
+- **r**: restore the original image
+- **a**:  apply next iteration of grabcut
+- **s**: save segmentation (go to the next img if vot format)
+- **t**: toggle on/off image m_overlay in visualization
+- **e**: toggle on/off enclosing rectangle in visualization
+- **f**: skip current frame
+- **left mouse button**: set rectangle
+- **CTRL+left mouse button**:  set BACKGROUND pixels
+- **SHIFT+left mouse button**: set FOREGREOUND pixels
 
 OUTPUT: 
-- the output is saved as binary images to the out directory (need to be created before) 
-- output.txt file with four-corner format min area rotated rectangle fitted to the segmentation
+- the output is saved as binary images to the *out/* directory (need to be created before) 
+- *output.txt* file with four-corner format min area rotated rectangle fitted to the segmentation
 
 _____________________________________
 Copyright (c) 2016, Tomáš Vojíř
