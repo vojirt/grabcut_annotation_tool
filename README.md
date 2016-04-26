@@ -45,7 +45,7 @@ Hot keys:
 - **SHIFT+left mouse button**: set FOREGREOUND pixels
 
 OUTPUT: 
-- the output is saved as binary images to the *out/* directory (need to be created before) 
+- the output is saved as binary images to the *out/* directory (**must** be created manually before running the app) 
 - *output.txt* file with four-corner format min area rotated rectangle fitted to the segmentation
 
 _____________________________________
