@@ -39,6 +39,7 @@ Hot keys:
 - **s**: save segmentation (go to the next img if vot format)
 - **t**: toggle on/off image m_overlay in visualization
 - **e**: toggle on/off enclosing rectangle in visualization
+- **v**: toggle on/off validation visualization
 - **f**: skip current frame
 - **left mouse button**: set rectangle
 - **CTRL+left mouse button**:  set BACKGROUND pixels
