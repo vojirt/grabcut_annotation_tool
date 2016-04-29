@@ -12,9 +12,20 @@ void Grabcut_app::getBinMask( const cv::Mat & comMask, cv::Mat & binMask )
         binMask.create( comMask.size(), CV_8UC1 );
     binMask = comMask & 1;
 
+
+    //create mask of inside foreground using erode and background using dilate
+    p_mask_valid_fg.setTo(0);
+    p_mask_valid_bg.setTo(0);
+    cv::Mat element = cv::getStructuringElement( cv::MORPH_RECT, cv::Size(9, 9));
+    cv::dilate( binMask, p_mask_valid_bg, element );
+    cv::threshold( p_mask_valid_bg(p_roi_rect), p_mask_valid_bg(p_roi_rect), 0, 255, cv::THRESH_BINARY_INV);
+
+    cv::erode(binMask, p_mask_valid_fg, element);
+    cv::threshold( p_mask_valid_fg, p_mask_valid_fg, 0, 255, cv::THRESH_BINARY);
+
     //clean one pixel holes and such and smooth edges
-    cv::dilate(binMask, binMask, cv::Mat());
-    cv::erode(binMask, binMask, cv::Mat());
+//    cv::dilate(binMask, binMask, cv::Mat());
+//    cv::erode(binMask, binMask, cv::Mat());
 
     cv::Mat mask_tmp = binMask*255;
     binMask.setTo(0);
@@ -64,6 +75,8 @@ void Grabcut_app::setImageAndWinName( const cv::Mat & _image, const std::string&
     p_image = &_image;
     p_win_name = &_winName;
     p_mask.create( p_image->size(), CV_8UC1);
+    p_mask_valid_fg.create( p_image->size(), CV_8UC1);
+    p_mask_valid_bg.create( p_image->size(), CV_8UC1);
     reset();
 }
 
@@ -109,6 +122,15 @@ void Grabcut_app::showImage(int number)
         for (int i = 0; i < 3; i++)
             line(res, vertices[i], vertices[(i+1)], P_BLUE);
         line(res, vertices[3], vertices[0], P_BLUE);
+    }
+
+    if (m_validation) {
+        cv::Mat b(res.size(), CV_8UC1), g(res.size(), CV_8UC1), r(res.size(), CV_8UC1);
+        std::vector<cv::Mat> mat_arr = {b, g, r};
+        cv::split(res, mat_arr);
+        cv::max(g, p_mask_valid_fg*0.5, g);
+        cv::max(r, p_mask_valid_bg*0.3, r);
+        cv::merge(mat_arr, res);
     }
 
     if (p_number >= 0) {

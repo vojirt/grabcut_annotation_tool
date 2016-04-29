@@ -14,6 +14,7 @@ public:
     //control vars
     bool m_overlay = false;
     bool m_show_enclosing_rest = false;
+    bool m_validation = false;
 
     //minimum area rotated rectangle for the segmentation
     cv::RotatedRect m_enclosing_rect;
@@ -53,6 +54,7 @@ private:
 
     //mats for grabcut
     cv::Mat p_mask, p_bgdModel, p_fgdModel;
+    cv::Mat p_mask_valid_fg, p_mask_valid_bg;
 
     double p_rect_size_ratio = 1.1;
     double p_roi_rect_size_ratio = 2.0;

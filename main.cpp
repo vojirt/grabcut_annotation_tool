@@ -54,6 +54,7 @@ int main( int argc, char** argv )
             "\ts - save segmentation (go to the next img if vot format)\n"
             "\tt - toggle on/off image m_overlay in visualization\n"
             "\te - toggle on/off enclosing rectangle in visualization\n"
+            "\tv - toggle on/off validation visualization\n"
             "\tf - skip current frame\n"
             "\n"
             "\tleft mouse button - set rectangle\n"
@@ -135,6 +136,10 @@ int main( int argc, char** argv )
                 break;}
             case 't':{
                 gcapp.m_overlay = !gcapp.m_overlay;
+                gcapp.showImage();
+                break;}
+            case 'v':{
+                gcapp.m_validation = !gcapp.m_validation;
                 gcapp.showImage();
                 break;}
             case 'f':{
