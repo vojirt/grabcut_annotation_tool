@@ -17,3 +17,6 @@ include_directories(${CMAKE_SOURCE_DIR}/ ${CMAKE_SOURCE_DIR}/src/)
 file(GLOB SOURCES src/*.cpp src/*.h src/*.hpp)
 add_executable(grabcut_annotation main.cpp vot.hpp ${SOURCES})
 target_link_libraries(grabcut_annotation ${OpenCV_LIBS})
+
+add_executable(annotation_vis main_vis.cpp)
+target_link_libraries(annotation_vis ${OpenCV_LIBS})
