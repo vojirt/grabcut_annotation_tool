@@ -73,7 +73,7 @@ int main( int argc, char** argv )
     if( argc == 2 ) {
         std::string filename = {argv[1]};
         image = cv::imread( filename, 1 );
-    } else if (argc == 3) {
+    } else if (argc >= 3) {
         //using vot
         vot.reset(new VOT{argv[2], argv[1], "output.txt"});
         vot->getNextImage(image);
@@ -83,21 +83,20 @@ int main( int argc, char** argv )
     if (argc > 3)
         start_frame = atoi(argv[3]);
 
-
-    if( image.empty() ) {
-        std::cout << "Error in loading image(s)!" << std::endl;
-        return 1;
-    }
-
     for (int i = 0; i < start_frame; ++i) {
         output_file_number++;
         int status = vot->getNextImage(image);
-        if (status > 0) {
+        if (status < 0) {
             std::cout << "Starting frame is larger than number of frames in the sequence!" << std::endl;
             return 1;
         }
 
         vot->getNextRectangle();
+    }
+
+    if( image.empty() ) {
+        std::cout << "Error in loading image(s)!" << std::endl;
+        return 1;
     }
 
     cv::namedWindow( winName, cv::WINDOW_NORMAL );
