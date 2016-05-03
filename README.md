@@ -21,7 +21,8 @@ for linux: open terminal in the directory with the code
 
 $ mkdir build; cd build; cmake .. ; make
 
-This code compiles into binary **grabcut_annotation**
+This code compiles into binary **grabcut_annotation** for interactive segmentation 
+and **annotation_vis** for visualization of the segmentation results
 
 ./grabcut_annotation *image_name*
 - Select a rectangular area around the object you want to segment
@@ -48,6 +49,16 @@ Hot keys:
 OUTPUT: 
 - the output is saved as binary images to the *out/* directory (**must** be created manually before running the app) 
 - *output.txt* file with four-corner format min area rotated rectangle fitted to the segmentation
+
+
+Call:
+./annotation_vis *images.txt* *segmentation_images.txt*
+- images.txt list of sequence images with absolute path
+- segmentation_images.txt list of segmentation images (produced by *grabcut_annotation*) with absolute path
+
+Hot keys: 
+- **any key** (except ESC): next image
+- **ESC**: quit the program
 
 _____________________________________
 Copyright (c) 2016, Tomáš Vojíř
