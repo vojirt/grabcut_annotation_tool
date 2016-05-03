@@ -51,7 +51,7 @@ OUTPUT:
 - *output.txt* file with four-corner format min area rotated rectangle fitted to the segmentation
 
 
-Call:
+
 ./annotation_vis *images.txt* *segmentation_images.txt*
 - images.txt list of sequence images with absolute path
 - segmentation_images.txt list of segmentation images (produced by *grabcut_annotation*) with absolute path
