@@ -34,6 +34,8 @@ int main(int argc, char ** argv)
 
     cv::namedWindow("Visualization", cv::WINDOW_NORMAL);
 
+    int frame_number = 0;
+
     while (true) {
 
         std::string line_image;
@@ -102,6 +104,12 @@ int main(int argc, char ** argv)
         //copy segmented image to left half
         cv::Rect shifted_roi(roi.width, 0, roi.width, roi.height);
         img(roi).copyTo(res(shifted_roi));
+
+        //show frame number
+        std::stringstream s; std::string num;
+        s << "#" << frame_number;
+        s >> num;
+        cv::putText(res, num, cvPoint(5,15), cv::FONT_HERSHEY_COMPLEX_SMALL, 0.6, cvScalar(218,218,40), 1, CV_AA);
 
         cv::imshow("Visualization", res);
         int c = cv::waitKey();
