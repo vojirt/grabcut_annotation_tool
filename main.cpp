@@ -52,9 +52,10 @@ int main( int argc, char** argv )
             "\tr - restore the original image\n"
             "\ta - apply next iteration of grabcut\n"
             "\ts - save segmentation (go to the next img if vot format)\n"
-            "\tt - toggle on/off image m_overlay in visualization\n"
+            "\tt - toggle on/off full image opacity overlay in visualization\n"
             "\te - toggle on/off enclosing rectangle in visualization\n"
             "\tv - toggle on/off validation visualization\n"
+            "\t[, ] - decrease/increase opacity of validation visualization\n"
             "\tf - skip current frame\n"
             "\n"
             "\tleft mouse button - set rectangle\n"
@@ -127,6 +128,18 @@ int main( int argc, char** argv )
                 break;}
             case 'a':{
                 gcapp.nextIter();
+                gcapp.showImage();
+                break;}
+            case '[':{
+                gcapp.m_valid_ratio -= 0.1;
+                if (gcapp.m_valid_ratio < 0.3)
+                    gcapp.m_valid_ratio = 0.3;
+                gcapp.showImage();
+                break;}
+            case ']':{
+                gcapp.m_valid_ratio += 0.1;
+                if (gcapp.m_valid_ratio > 1.)
+                    gcapp.m_valid_ratio = 1.;
                 gcapp.showImage();
                 break;}
             case 'e':{

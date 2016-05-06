@@ -95,26 +95,32 @@ void Grabcut_app::showImage(int number)
     else
     {
         if (m_overlay)
-        res = 0.3*(*p_image);
+            res = (*p_image).clone();
+        else
+            res = 0.3*(*p_image);
 
         getBinMask( p_mask, binMask );
         p_image->copyTo( res, binMask );
     }
 
     std::vector<cv::Point>::const_iterator it;
+    cv::Mat circle_overlay = res.clone();
     for( it = p_bgdPxls.begin(); it != p_bgdPxls.end(); ++it )
-        cv::circle( res, *it, p_radius, P_BLUE, p_thickness );
+        cv::circle( circle_overlay, *it, p_radius, P_BLUE, p_thickness );
     for( it = p_fgdPxls.begin(); it != p_fgdPxls.end(); ++it )
-        cv::circle( res, *it, p_radius, P_RED, p_thickness );
+        cv::circle( circle_overlay, *it, p_radius, P_RED, p_thickness );
     for( it = p_prBgdPxls.begin(); it != p_prBgdPxls.end(); ++it )
-        cv::circle( res, *it, p_radius, P_LIGHTBLUE, p_thickness );
+        cv::circle( circle_overlay, *it, p_radius, P_LIGHTBLUE, p_thickness );
     for( it = p_prFgdPxls.begin(); it != p_prFgdPxls.end(); ++it )
-        cv::circle( res, *it, p_radius, P_PINK, p_thickness );
+        cv::circle( circle_overlay, *it, p_radius, P_PINK, p_thickness );
 
-    if( p_rect_state == IN_PROCESS || p_rect_state == SET ) {
-        cv::rectangle(res, cv::Point(p_rect.x, p_rect.y), cv::Point(p_rect.x + p_rect.width, p_rect.y + p_rect.height), P_GREEN, 1);
-        cv::rectangle(res, cv::Point(p_roi_rect.x, p_roi_rect.y), cv::Point(p_roi_rect.x + p_roi_rect.width, p_roi_rect.y + p_roi_rect.height), P_RED, 1);
+    if( (p_rect_state == IN_PROCESS || p_rect_state == SET) && !m_validation ) {
+        cv::rectangle(circle_overlay, cv::Point(p_rect.x, p_rect.y), cv::Point(p_rect.x + p_rect.width, p_rect.y + p_rect.height), P_GREEN, 1);
+        //cv::rectangle(circle_overlay, cv::Point(p_roi_rect.x, p_roi_rect.y), cv::Point(p_roi_rect.x + p_roi_rect.width, p_roi_rect.y + p_roi_rect.height), P_RED, 1);
     }
+
+    res = 0.5*res + 0.5*circle_overlay;
+
 
     if (m_show_enclosing_rest){
         cv::Point2f vertices[4];
@@ -128,8 +134,12 @@ void Grabcut_app::showImage(int number)
         cv::Mat b(res.size(), CV_8UC1), g(res.size(), CV_8UC1), r(res.size(), CV_8UC1);
         std::vector<cv::Mat> mat_arr = {b, g, r};
         cv::split(res, mat_arr);
-        cv::max(g, p_mask_valid_fg*0.5, g);
-        cv::max(r, p_mask_valid_bg*0.3, r);
+        double ratio = m_valid_ratio;
+        if (!m_overlay)
+            ratio = 0.5*ratio;
+
+        cv::max(g, p_mask_valid_fg*ratio, g);
+        cv::max(r, p_mask_valid_bg*ratio, r);
         cv::merge(mat_arr, res);
     }
 

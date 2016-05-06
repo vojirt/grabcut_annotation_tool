@@ -15,6 +15,7 @@ public:
     bool m_overlay = false;
     bool m_show_enclosing_rest = false;
     bool m_validation = false;
+    double m_valid_ratio = 1.0;
 
     //minimum area rotated rectangle for the segmentation
     cv::RotatedRect m_enclosing_rect;
