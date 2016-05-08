@@ -22,7 +22,7 @@ public:
 
     void reset();
     void setImageAndWinName( const cv::Mat& _image, const std::string& _winName );
-    void showImage(int number = -1);
+    void showImage(int number = -1, bool full = true);
     void mouseClick( int event, int x, int y, int flags, void* param );
     void nextIter();
     cv::Mat get_segmentation();
@@ -66,7 +66,7 @@ private:
 
     void setRectInMask();
     void setLblsInMask( int flags, cv::Point p, bool isPr );
-    void getBinMask( const cv::Mat & comMask, cv::Mat & binMask );
+    void getBinMask( const cv::Mat & comMask, cv::Mat & binMask, bool full = true );
 
     cv::Mat cyclshift(const cv::Mat &patch, int x_rot, int y_rot);
     void enlarge_bbox(cv::Rect & bbox, double expand_factor);
