@@ -171,13 +171,17 @@ void Grabcut_app::setRectInMask()
 
     p_rect.x = std::max(0, p_rect.x);
     p_rect.y = std::max(0, p_rect.y);
-    p_rect.width = std::min(p_rect.width, p_image->cols-p_rect.x);
-    p_rect.height = std::min(p_rect.height, p_image->rows-p_rect.y);
+    if (p_rect.x + p_rect.width >= p_image->cols)
+        p_rect.width = p_rect.width - (p_rect.x + p_rect.width - p_image->cols) - 1;
+    if (p_rect.y + p_rect.height >= p_image->rows)
+        p_rect.height = p_rect.height - (p_rect.y + p_rect.height - p_image->rows) -1;
 
     p_roi_rect.x = std::max(0, p_roi_rect.x);
     p_roi_rect.y = std::max(0, p_roi_rect.y);
-    p_roi_rect.width = std::min(p_roi_rect.width, p_image->cols-p_roi_rect.x);
-    p_roi_rect.height = std::min(p_roi_rect.height, p_image->rows-p_roi_rect.y);
+    if (p_roi_rect.x + p_roi_rect.width >= p_image->cols)
+        p_roi_rect.width = p_roi_rect.width - (p_roi_rect.x + p_roi_rect.width - p_image->cols) - 1;
+    if (p_roi_rect.y + p_roi_rect.height >= p_image->rows)
+        p_roi_rect.height = p_roi_rect.height - (p_roi_rect.y + p_roi_rect.height - p_image->rows) -1;
 
     (p_mask(p_rect)).setTo( cv::Scalar(cv::GC_PR_FGD) );
 }
@@ -345,8 +349,10 @@ void Grabcut_app::predict_background(cv::Mat & img0, cv::Mat & img1, cv::Mat & m
         enlarge_bbox(prev_bbox, p_rect_size_ratio);
     prev_bbox.x = std::max(0, prev_bbox.x);
     prev_bbox.y = std::max(0, prev_bbox.y);
-    prev_bbox.width = std::min(prev_bbox.width, p_image->cols-p_rect.x);
-    prev_bbox.height = std::min(prev_bbox.height, p_image->rows-p_rect.y);
+    if (prev_bbox.x + prev_bbox.width >= p_image->cols)
+        prev_bbox.width = prev_bbox.width - (prev_bbox.x + prev_bbox.width - p_image->cols) - 1;
+    if (prev_bbox.y + prev_bbox.height >= p_image->rows)
+        prev_bbox.height = prev_bbox.height - (prev_bbox.y + prev_bbox.height - p_image->rows) -1;
     (rect_mask(prev_bbox)).setTo( 255 );
 
     cv::goodFeaturesToTrack(i0_gray, corners_i0, 250, 0.01, 5, rect_mask);
