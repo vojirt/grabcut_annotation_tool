@@ -116,14 +116,16 @@ void Grabcut_app::showImage(int number, bool full)
 
     std::vector<cv::Point>::const_iterator it;
     cv::Mat circle_overlay = res.clone();
+
+    // show size of marking tool
     for( it = p_bgdPxls.begin(); it != p_bgdPxls.end(); ++it )
-        cv::circle( circle_overlay, *it, p_radius, P_BLUE, p_thickness );
+        cv::circle( circle_overlay, *it, m_radius, P_BLUE, p_thickness );
     for( it = p_fgdPxls.begin(); it != p_fgdPxls.end(); ++it )
-        cv::circle( circle_overlay, *it, p_radius, P_RED, p_thickness );
+        cv::circle( circle_overlay, *it, m_radius, P_RED, p_thickness );
     for( it = p_prBgdPxls.begin(); it != p_prBgdPxls.end(); ++it )
-        cv::circle( circle_overlay, *it, p_radius, P_LIGHTBLUE, p_thickness );
+        cv::circle( circle_overlay, *it, m_radius, P_LIGHTBLUE, p_thickness );
     for( it = p_prFgdPxls.begin(); it != p_prFgdPxls.end(); ++it )
-        cv::circle( circle_overlay, *it, p_radius, P_PINK, p_thickness );
+        cv::circle( circle_overlay, *it, m_radius, P_PINK, p_thickness );
 
     if( (p_rect_state == IN_PROCESS || p_rect_state == SET) && !m_validation ) {
         cv::rectangle(circle_overlay, cv::Point(p_rect.x, p_rect.y), cv::Point(p_rect.x + p_rect.width, p_rect.y + p_rect.height), P_GREEN, 1);
@@ -145,7 +147,7 @@ void Grabcut_app::showImage(int number, bool full)
         cv::Mat b(res.size(), CV_8UC1), g(res.size(), CV_8UC1), r(res.size(), CV_8UC1);
         std::vector<cv::Mat> mat_arr = {b, g, r};
         cv::split(res, mat_arr);
-        double ratio = m_valid_ratio;
+        double ratio = m_valid_ratio_opacity;
         if (!m_overlay)
             ratio = 0.5*ratio;
 
@@ -160,6 +162,14 @@ void Grabcut_app::showImage(int number, bool full)
         s >> num;
         cv::putText(res, num, cvPoint(5,15), cv::FONT_HERSHEY_COMPLEX_SMALL, 0.8, cvScalar(218,218,40), 1, CV_AA);
     }
+
+    //show size of the mark tool
+    std::stringstream s; std::string num;
+    s << "r:" << m_radius;
+    s >> num;
+    cv::putText(res, num, cvPoint(res.cols-55,15), cv::FONT_HERSHEY_COMPLEX_SMALL, 0.8, cvScalar(218,218,40), 1, CV_AA);
+
+
 
     cv::imshow( *p_win_name, res );
 }
@@ -204,23 +214,23 @@ void Grabcut_app::setLblsInMask( int flags, cv::Point p, bool isPr )
 
     if( flags & P_BGD_KEY ) {
         bpxls->push_back(p);
-        cv::circle( p_mask, p, p_radius, bvalue, p_thickness );
+        cv::circle( p_mask, p, m_radius, bvalue, p_thickness );
     }
 
     if( flags & P_FGD_KEY ) {
         fpxls->push_back(p);
-        cv::circle( p_mask, p, p_radius, fvalue, p_thickness );
+        cv::circle( p_mask, p, m_radius, fvalue, p_thickness );
     }
 }
 
 void Grabcut_app::mouseClick( int event, int x, int y, int flags, void* )
 {
+    bool isb = (flags & P_BGD_KEY) != 0,
+         isf = (flags & P_FGD_KEY) != 0;
     switch( event )
     {
         case cv::EVENT_LBUTTONDOWN: // set rect or GC_BGD(GC_FGD) labels
         {
-            bool isb = (flags & P_BGD_KEY) != 0,
-                 isf = (flags & P_FGD_KEY) != 0;
             if( p_rect_state == NOT_SET && !isb && !isf ) {
                 p_rect_state = IN_PROCESS;
                 p_rect = cv::Rect( x, y, 1, 1 );
@@ -232,8 +242,6 @@ void Grabcut_app::mouseClick( int event, int x, int y, int flags, void* )
             break;
         case cv::EVENT_RBUTTONDOWN: // set GC_PR_BGD(GC_PR_FGD) labels
         {
-            bool isb = (flags & P_BGD_KEY) != 0,
-                 isf = (flags & P_FGD_KEY) != 0;
             if ( (isb || isf) && p_rect_state == SET )
                 p_pr_labeling_state = IN_PROCESS;
         }
@@ -382,9 +390,9 @@ void Grabcut_app::predict_background(cv::Mat & img0, cv::Mat & img1, cv::Mat & m
         if (status[i] == 1 && p_rect.contains(corners_i1[i])) {
             if (mask0.at<uchar>(corners_i0[i].y, corners_i0[i].x) == 0) {
                 //prob bg pixel
-                cv::circle( p_mask, corners_i1[i], p_radius, cv::GC_BGD, p_thickness );
+                cv::circle( p_mask, corners_i1[i], m_radius, cv::GC_BGD, p_thickness );
             } else {
-                cv::circle( p_mask, corners_i1[i], p_radius, cv::GC_FGD, p_thickness );
+                cv::circle( p_mask, corners_i1[i], m_radius, cv::GC_FGD, p_thickness );
             }
         }
     }

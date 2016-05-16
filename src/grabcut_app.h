@@ -15,7 +15,8 @@ public:
     bool m_overlay = false;
     bool m_show_enclosing_rest = false;
     bool m_validation = false;
-    double m_valid_ratio = 1.0;
+    double m_valid_ratio_opacity = 1.0;
+    int m_radius = 2;
 
     //minimum area rotated rectangle for the segmentation
     cv::RotatedRect m_enclosing_rect;
@@ -36,7 +37,6 @@ private:
     const cv::Scalar P_BLUE = cv::Scalar(255,0,0);
     const cv::Scalar P_LIGHTBLUE = cv::Scalar(255,255,160);
     const cv::Scalar P_GREEN = cv::Scalar(0,255,0);
-    static const int p_radius = 2;
     static const int p_thickness = -1;
     int p_number = -1;
 

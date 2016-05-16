@@ -55,7 +55,8 @@ int main( int argc, char** argv )
             "\tt - toggle on/off full image opacity overlay in visualization\n"
             "\te - toggle on/off enclosing rectangle in visualization\n"
             "\tv - toggle on/off validation visualization\n"
-            "\t[, ] - decrease/increase opacity of validation visualization\n"
+            "\t-, + - decrease/increase opacity of validation visualization\n"
+            "\t[, ] - decrease/increase size of the mark tool\n"
             "\tf - skip current frame\n"
             "\n"
             "\tleft mouse button - set rectangle\n"
@@ -130,21 +131,33 @@ int main( int argc, char** argv )
                 gcapp.nextIter();
                 gcapp.showImage();
                 break;}
+            case '-':{
+                gcapp.m_valid_ratio_opacity -= 0.1;
+                if (gcapp.m_valid_ratio_opacity < 0.3)
+                    gcapp.m_valid_ratio_opacity = 0.3;
+                gcapp.showImage(-1, false);
+                break;}
+            case '+':{
+                gcapp.m_valid_ratio_opacity += 0.1;
+                if (gcapp.m_valid_ratio_opacity > 1.)
+                    gcapp.m_valid_ratio_opacity = 1.;
+                gcapp.showImage(-1, false);
+                break;}
             case '[':{
-                gcapp.m_valid_ratio -= 0.1;
-                if (gcapp.m_valid_ratio < 0.3)
-                    gcapp.m_valid_ratio = 0.3;
-                gcapp.showImage();
+                gcapp.m_radius -= 1;
+                if (gcapp.m_radius < 2)
+                    gcapp.m_radius = 2;
+                gcapp.showImage(-1, false);
                 break;}
             case ']':{
-                gcapp.m_valid_ratio += 0.1;
-                if (gcapp.m_valid_ratio > 1.)
-                    gcapp.m_valid_ratio = 1.;
-                gcapp.showImage();
+                gcapp.m_radius += 1;
+                if (gcapp.m_radius > 100)
+                    gcapp.m_radius = 100;
+                gcapp.showImage(-1, false);
                 break;}
             case 'e':{
                 gcapp.m_show_enclosing_rest = !gcapp.m_show_enclosing_rest;
-                gcapp.showImage();
+                gcapp.showImage(-1, false);
                 break;}
             case 't':{
                 gcapp.m_overlay = !gcapp.m_overlay;
