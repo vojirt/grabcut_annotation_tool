@@ -135,37 +135,37 @@ int main( int argc, char** argv )
                 gcapp.m_valid_ratio_opacity -= 0.1;
                 if (gcapp.m_valid_ratio_opacity < 0.3)
                     gcapp.m_valid_ratio_opacity = 0.3;
-                gcapp.showImage(-1, false);
+                gcapp.showImage();
                 break;}
             case '+':{
                 gcapp.m_valid_ratio_opacity += 0.1;
                 if (gcapp.m_valid_ratio_opacity > 1.)
                     gcapp.m_valid_ratio_opacity = 1.;
-                gcapp.showImage(-1, false);
+                gcapp.showImage();
                 break;}
             case '[':{
                 gcapp.m_radius -= 1;
                 if (gcapp.m_radius < 2)
                     gcapp.m_radius = 2;
-                gcapp.showImage(-1, false);
+                gcapp.showImage();
                 break;}
             case ']':{
                 gcapp.m_radius += 1;
                 if (gcapp.m_radius > 100)
                     gcapp.m_radius = 100;
-                gcapp.showImage(-1, false);
+                gcapp.showImage();
                 break;}
             case 'e':{
                 gcapp.m_show_enclosing_rest = !gcapp.m_show_enclosing_rest;
-                gcapp.showImage(-1, false);
+                gcapp.showImage();
                 break;}
             case 't':{
                 gcapp.m_overlay = !gcapp.m_overlay;
-                gcapp.showImage(-1, false);
+                gcapp.showImage();
                 break;}
             case 'v':{
                 gcapp.m_validation = !gcapp.m_validation;
-                gcapp.showImage(-1, false);
+                gcapp.showImage();
                 break;}
             case 'f':{
                 if (vot){

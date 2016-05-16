@@ -4,60 +4,13 @@
 
 #include "grabcut_app.h"
 
-void Grabcut_app::getBinMask( const cv::Mat & comMask, cv::Mat & binMask, bool full)
+void Grabcut_app::getBinMask( const cv::Mat & comMask, cv::Mat & binMask)
 {
     if( comMask.empty() || comMask.type()!=CV_8UC1 )
         std::cout << "comMask is empty or has incorrect type (not CV_8UC1)\n";
     if( binMask.empty() || binMask.rows!=comMask.rows || binMask.cols!=comMask.cols )
         binMask.create( comMask.size(), CV_8UC1 );
     binMask = comMask & 1;
-
-    if (full) {
-        //create mask of inside foreground using erode and background using dilate
-        p_mask_valid_fg.setTo(0);
-        p_mask_valid_bg.setTo(0);
-        cv::Mat element = cv::getStructuringElement(cv::MORPH_RECT,
-                                                    cv::Size(9, 9));
-        cv::dilate(binMask, p_mask_valid_bg, element);
-        cv::threshold(p_mask_valid_bg(p_roi_rect), p_mask_valid_bg(p_roi_rect),
-                      0, 255, cv::THRESH_BINARY_INV);
-
-        cv::erode(binMask, p_mask_valid_fg, element);
-        cv::threshold(p_mask_valid_fg, p_mask_valid_fg, 0, 255,
-                      cv::THRESH_BINARY);
-
-        //clean one pixel holes and such and smooth edges
-//    cv::dilate(binMask, binMask, cv::Mat());
-//    cv::erode(binMask, binMask, cv::Mat());
-
-        cv::Mat mask_tmp = binMask * 255;
-        binMask.setTo(0);
-
-        std::vector<std::vector<cv::Point>> contours;
-        std::vector<cv::Vec4i> hierarchy;
-        cv::findContours(mask_tmp, contours, hierarchy, CV_RETR_TREE,
-                         CV_CHAIN_APPROX_NONE, cv::Point(0, 0));
-
-        std::vector<cv::Point> all_contours;
-        if (contours.size() == 1)
-            all_contours.reserve(contours[0].size());
-        else {
-            int all_point_size = std::accumulate(contours.begin(), contours.end(), 0,
-                                  [](int &acc, std::vector<cv::Point> &c) -> int {return acc + static_cast<int>(c.size());});
-            all_contours.reserve(all_point_size);
-        }
-
-        //close segmentations (remove holes) + filter segmentations smaller than XX px
-        for (size_t i = 0, s = contours.size(); i < s; i++) {
-            double a = cv::contourArea(contours[i], false);  //  Find the area of contour
-            if (a > 25) {
-                cv::drawContours(binMask, contours, i, cv::Scalar(1), CV_FILLED);
-                all_contours.insert(all_contours.end(), contours[i].begin(), contours[i].end());
-            }
-        }
-        if (all_contours.size() > 0)
-            m_enclosing_rect = cv::minAreaRect(all_contours);
-    }
 }
 
 void Grabcut_app::reset()
@@ -85,7 +38,7 @@ void Grabcut_app::setImageAndWinName( const cv::Mat & _image, const std::string&
     reset();
 }
 
-void Grabcut_app::showImage(int number, bool full)
+void Grabcut_app::showImage(int number)
 {
     if( p_image->empty() || p_win_name->empty() )
         return;
@@ -104,7 +57,7 @@ void Grabcut_app::showImage(int number, bool full)
         else
             res = 0.3*(*p_image);
 
-        getBinMask( p_mask, binMask, full);
+        getBinMask( p_mask, binMask);
         p_image->copyTo( res, binMask );
     }
 
@@ -162,8 +115,6 @@ void Grabcut_app::showImage(int number, bool full)
     s << "r:" << m_radius;
     s >> num;
     cv::putText(res, num, cvPoint(res.cols-55,15), cv::FONT_HERSHEY_COMPLEX_SMALL, 0.8, cvScalar(218,218,40), 1, CV_AA);
-
-
 
     cv::imshow( *p_win_name, res );
 }
@@ -254,27 +205,27 @@ void Grabcut_app::mouseClick( int event, int x, int y, int flags, void* )
             if( p_labeling_state == IN_PROCESS ) {
                 setLblsInMask(flags, cv::Point(x,y), false);
                 p_labeling_state = SET;
-                showImage(-1, false);
+                showImage();
             }
             break;
         case cv::EVENT_RBUTTONUP:
             if( p_pr_labeling_state == IN_PROCESS ) {
                 setLblsInMask(flags, cv::Point(x,y), true);
                 p_pr_labeling_state = SET;
-                showImage(-1, false);
+                showImage();
             }
             break;
         case cv::EVENT_MOUSEMOVE:
             if( p_rect_state == IN_PROCESS ) {
                 p_rect = cv::Rect( cv::Point(p_rect.x, p_rect.y), cv::Point(x,y) );
                 CV_Assert( p_bgdPxls.empty() && p_fgdPxls.empty() && p_prBgdPxls.empty() && p_prFgdPxls.empty() );
-                showImage(-1, false);
+                showImage();
             } else if( p_labeling_state == IN_PROCESS ) {
                 setLblsInMask(flags, cv::Point(x,y), false);
-                showImage(-1, false);
+                showImage();
             } else if( p_pr_labeling_state == IN_PROCESS ) {
                 setLblsInMask(flags, cv::Point(x,y), true);
-                showImage(-1, false);
+                showImage();
             }
             break;
     }
@@ -302,6 +253,28 @@ void Grabcut_app::nextIter()
 
     p_bgdPxls.clear(); p_fgdPxls.clear();
     p_prBgdPxls.clear(); p_prFgdPxls.clear();
+
+
+    //clear contour
+    cv::Mat binMask = p_mask & 1;
+
+    //create mask of inside foreground using erode and background using dilate
+    p_mask_valid_fg.setTo(0);
+    p_mask_valid_bg.setTo(0);
+    cv::Mat element = cv::getStructuringElement(cv::MORPH_RECT,
+                                                cv::Size(9, 9));
+    cv::dilate(binMask, p_mask_valid_bg, element);
+    cv::threshold(p_mask_valid_bg(p_roi_rect), p_mask_valid_bg(p_roi_rect),
+                  0, 255, cv::THRESH_BINARY_INV);
+
+    cv::erode(binMask, p_mask_valid_fg, element);
+    cv::threshold(p_mask_valid_fg, p_mask_valid_fg, 0, 255,
+                  cv::THRESH_BINARY);
+
+    //clean one pixel holes and such and smooth edges
+    cv::erode(p_mask, p_mask, cv::Mat());
+    cv::dilate(p_mask, p_mask, cv::Mat());
+
 }
 
 cv::Mat Grabcut_app::get_segmentation()
