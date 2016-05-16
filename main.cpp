@@ -71,6 +71,7 @@ int main( int argc, char** argv )
     cv::Mat image, segmentation_mask;
     std::unique_ptr<VOT> vot;
     int output_file_number = 0;
+    int segmentation_status = 0;
 
     if( argc == 2 ) {
         std::string filename = {argv[1]};
@@ -79,17 +80,17 @@ int main( int argc, char** argv )
         //using vot
         std::string seg_file = "";
         if (argc >= 4)
-            seg_file = argv[3];
+            seg_file = argv[4];
 
         vot.reset(new VOT{argv[2], argv[1], "output.txt", seg_file});
         vot->getNextImage(image);
+        segmentation_status = vot->getNextSegmentation(segmentation_mask);
     }
 
     int start_frame = 0;
     if (argc > 3)
         start_frame = atoi(argv[3]);
 
-    int segmentation_status = -1;
     for (int i = 0; i < start_frame; ++i) {
         output_file_number++;
         int status = vot->getNextImage(image);

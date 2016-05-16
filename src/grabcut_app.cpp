@@ -36,6 +36,8 @@ void Grabcut_app::getBinMask( const cv::Mat & comMask, cv::Mat & binMask)
             cv::drawContours(binMask, contours, i, cv::Scalar(1), CV_FILLED);
         }
     }
+    cv::dilate(binMask, binMask, cv::Mat());
+    cv::erode(binMask, binMask, cv::Mat());
 }
 
 void Grabcut_app::reset()
@@ -82,9 +84,9 @@ void Grabcut_app::set_mask(const cv::Mat & mask)
 
     cv::Mat zeros = cv::Mat::zeros(p_mask.size(), CV_8UC1);
     cv::Mat ones = cv::Mat::ones(p_mask.size(), CV_8UC1);
-
     zeros.copyTo(p_mask, outside_contour);
     ones.copyTo(p_mask, inner_contour);
+    p_is_initialized = true;
 }
 
 void Grabcut_app::showImage(int number)
