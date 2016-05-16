@@ -42,23 +42,17 @@ void Grabcut_app::getBinMask( const cv::Mat & comMask, cv::Mat & binMask, bool f
         if (contours.size() == 1)
             all_contours.reserve(contours[0].size());
         else {
-            int all_point_size = std::accumulate(contours.begin(),
-                                                 contours.end(), 0, [](int &acc,
-                                                                       std::vector<cv::Point> &c) -> int {
-                        return acc + c.size();
-                    });
+            int all_point_size = std::accumulate(contours.begin(), contours.end(), 0,
+                                  [](int &acc, std::vector<cv::Point> &c) -> int {return acc + static_cast<int>(c.size());});
             all_contours.reserve(all_point_size);
         }
 
-        //close segmentations (remove holes) + filter segmentations smaller than 15px
+        //close segmentations (remove holes) + filter segmentations smaller than XX px
         for (size_t i = 0, s = contours.size(); i < s; i++) {
-            double a = cv::contourArea(contours[i],
-                                       false);  //  Find the area of contour
+            double a = cv::contourArea(contours[i], false);  //  Find the area of contour
             if (a > 25) {
-                cv::drawContours(binMask, contours, i, cv::Scalar(1),
-                                 CV_FILLED);
-                all_contours.insert(all_contours.end(), contours[i].begin(),
-                                    contours[i].end());
+                cv::drawContours(binMask, contours, i, cv::Scalar(1), CV_FILLED);
+                all_contours.insert(all_contours.end(), contours[i].begin(), contours[i].end());
             }
         }
         if (all_contours.size() > 0)

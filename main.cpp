@@ -161,11 +161,11 @@ int main( int argc, char** argv )
                 break;}
             case 't':{
                 gcapp.m_overlay = !gcapp.m_overlay;
-                gcapp.showImage();
+                gcapp.showImage(-1, false);
                 break;}
             case 'v':{
                 gcapp.m_validation = !gcapp.m_validation;
-                gcapp.showImage();
+                gcapp.showImage(-1, false);
                 break;}
             case 'f':{
                 if (vot){
