@@ -53,13 +53,16 @@ OUTPUT:
 
 
 
-./annotation_vis *images.txt* *segmentation_images.txt*
+./annotation_vis *images.txt* *segmentation_images.txt* *output_file=output_frame_numbers.txt*
 - images.txt list of sequence images with absolute path
 - segmentation_images.txt list of segmentation images (produced by *grabcut_annotation*) with absolute path
+- output_file set default to output_frame_numbers.txt for storing selected frame numbers
 
 Hot keys: 
-- **any key** (except ESC): next image
-- **ESC**: quit the program
+- **ESC** - quit the program
+- **n** - save currect frame number
+- **any other key** - next image
+
 
 _____________________________________
 Copyright (c) 2016, Tomáš Vojíř

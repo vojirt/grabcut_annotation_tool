@@ -15,7 +15,7 @@ int main(int argc, char ** argv)
             "\nHot keys: \n"
                 "\tESC - quit the program\n"
                 "\tn - save currect frame number\n"
-                "\tany key - next image\n" << std::endl;
+                "\tany other key - next image\n" << std::endl;
 
 
     if (argc < 3) {
