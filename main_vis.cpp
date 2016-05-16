@@ -11,10 +11,12 @@ int main(int argc, char ** argv)
 {
     std::cout << "\nThis program visualize segmentation\n"
             "Call:\n"
-            "./annotation_vis <images.txt> <segmentation_images.txt>\n"
+            "./annotation_vis <images.txt> <segmentation_images.txt> <output_file=output_frame_numbers.txt>\n"
             "\nHot keys: \n"
-                "\tany key (except ESC) - next image\n"
-                "\tESC - quit the program\n" << std::endl;
+                "\tESC - quit the program\n"
+                "\tn - save currect frame number\n"
+                "\tany key - next image\n" << std::endl;
+
 
     if (argc < 3) {
         std::cerr << "Input must be two text files!" << std::endl;
@@ -32,12 +34,18 @@ int main(int argc, char ** argv)
     if (!segmentation_stream.is_open())
         std::cerr << "Error loading image file " << argv[2] << "!" << std::endl;
 
+    std::string out_file_name = "output_frame_numbers.txt";
+    if (argc > 3) out_file_name = argv[3];
+
+    std::ofstream output_stream(out_file_name);
+    if (!output_stream.is_open())
+        std::cerr << "Error opening output file " << out_file_name << "!" << std::endl;
+
     cv::namedWindow("Visualization", cv::WINDOW_NORMAL);
 
     int frame_number = 0;
 
     while (true) {
-
         std::string line_image;
         std::getline (images_stream, line_image);
         if (line_image.empty() && images_stream.eof())
@@ -58,11 +66,22 @@ int main(int argc, char ** argv)
         std::vector<cv::Vec4i> hierarchy;
         cv::findContours( segmentation, contours, hierarchy, CV_RETR_TREE, CV_CHAIN_APPROX_NONE, cv::Point(0, 0));
         if (contours.size() > 0){
-            cv::RotatedRect enclosing_rect = cv::minAreaRect(contours[0]);
-            roi = enclosing_rect.boundingRect();
-
+            cv::Point top_left(img.cols, img.rows), bot_right(0, 0);
+            for (size_t i = 0; i < contours.size(); ++i){
+                for (auto & pt : contours[i]) {
+                    if (pt.x < top_left.x) top_left.x = pt.x;
+                    if (pt.y < top_left.y) top_left.y = pt.y;
+                    if (pt.x > bot_right.x) bot_right.x = pt.x;
+                    if (pt.y > bot_right.y) bot_right.y = pt.y;
+                }
+            }
+            roi = cv::Rect(top_left, bot_right);
             cv::Point center(roi.x + roi.width / 2,
                              roi.y + roi.height / 2);
+
+            roi.width = roi.width < 50 ? 50 : roi.width;
+            roi.height = roi.height < 50 ? 50 : roi.height;
+
             roi.width = static_cast<int>(roi.width * 2);
             roi.height = static_cast<int>(roi.height * 2);
             roi.x = center.x - roi.width / 2;
@@ -70,8 +89,11 @@ int main(int argc, char ** argv)
 
             roi.x = std::max(0, roi.x);
             roi.y = std::max(0, roi.y);
-            roi.width = std::min(roi.width, img.cols-roi.x);
-            roi.height = std::min(roi.height, img.rows-roi.y);
+
+            if (roi.x + roi.width >= img.cols)
+                roi.width = roi.width - (roi.x + roi.width - img.cols) - 1;
+            if (roi.y + roi.height >= img.rows)
+                roi.height = roi.height - (roi.y + roi.height - img.rows) -1;
 
         } else {
             roi = cv::Rect(0, 0, img.cols-1, img.rows-1);
@@ -116,6 +138,10 @@ int main(int argc, char ** argv)
         if ((char) c == '\x1b') {
             break;
         }
+        if ((char) c == 'n') {
+            output_stream << frame_number << std::endl;
+        }
+        frame_number++;
     }
 
 
