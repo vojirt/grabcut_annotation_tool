@@ -68,7 +68,7 @@ int main( int argc, char** argv )
 //            "\tSHIFT+right mouse button - set GC_PR_FGD pixels\n" << std::endl;
 
     const cv::string winName = "image";
-    cv::Mat image;
+    cv::Mat image, segmentation_mask;
     std::unique_ptr<VOT> vot;
     int output_file_number = 0;
 
@@ -77,7 +77,11 @@ int main( int argc, char** argv )
         image = cv::imread( filename, 1 );
     } else if (argc >= 3) {
         //using vot
-        vot.reset(new VOT{argv[2], argv[1], "output.txt"});
+        std::string seg_file = "";
+        if (argc >= 4)
+            seg_file = argv[3];
+
+        vot.reset(new VOT{argv[2], argv[1], "output.txt", seg_file});
         vot->getNextImage(image);
     }
 
@@ -85,9 +89,11 @@ int main( int argc, char** argv )
     if (argc > 3)
         start_frame = atoi(argv[3]);
 
+    int segmentation_status = -1;
     for (int i = 0; i < start_frame; ++i) {
         output_file_number++;
         int status = vot->getNextImage(image);
+        segmentation_status = vot->getNextSegmentation(segmentation_mask);
         if (status < 0) {
             std::cout << "Starting frame is larger than number of frames in the sequence!" << std::endl;
             return 1;
@@ -110,6 +116,8 @@ int main( int argc, char** argv )
         bbox = vot->getNextRectangle();
         if (bbox.width > 0 && bbox.height > 0) {
             gcapp.set_rectangle(bbox);
+            if (segmentation_status > 0)
+                gcapp.set_mask(segmentation_mask);
             gcapp.nextIter();
         }
     }
@@ -172,12 +180,15 @@ int main( int argc, char** argv )
                     vot->outputPolygon(VOTPolygon());
 
                     int status = vot->getNextImage(image);
+                    segmentation_status = vot->getNextSegmentation(segmentation_mask);
                     if (status > 0) {
                         output_file_number++;
                         gcapp.setImageAndWinName(image, winName);
                         bbox = vot->getNextRectangle();
                         if (bbox.width > 0 && bbox.height > 0) {
                             gcapp.set_rectangle(bbox);
+                            if (segmentation_status > 0)
+                                gcapp.set_mask(segmentation_mask);
                             gcapp.nextIter();
                         }
                         gcapp.showImage(output_file_number);
@@ -205,6 +216,7 @@ int main( int argc, char** argv )
                     cv::Rect prev_bbox = bbox;
                     cv::Mat prev_img = image.clone();
                     int status = vot->getNextImage(image);
+                    segmentation_status = vot->getNextSegmentation(segmentation_mask);
                     if (status > 0) {
                         gcapp.setImageAndWinName(image, winName);
                         bbox = vot->getNextRectangle();
@@ -221,7 +233,10 @@ int main( int argc, char** argv )
                             gcapp.set_rectangle(prev_bbox, true);
                         }
                         //seed the initial mask with probable background seeds
-                        gcapp.predict_background(prev_img, image, segmentation, prev_bbox, uncertain_bbox);
+                        if (segmentation_status > 0)
+                            gcapp.set_mask(segmentation_mask);
+                        else
+                            gcapp.predict_background(prev_img, image, segmentation, prev_bbox, uncertain_bbox);
                         gcapp.nextIter();
                         gcapp.showImage(output_file_number);
                     } else {

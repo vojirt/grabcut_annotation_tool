@@ -33,7 +33,7 @@ typedef struct {
 class VOT
 {
 public:
-    VOT(const std::string & region_file, const std::string & images, const std::string & ouput)
+    VOT(const std::string & region_file, const std::string & images, const std::string & output, const std::string & segmentations = "")
     {
         p_region_stream.open(region_file.c_str());
         p_polygon_ptr = 0;
@@ -90,9 +90,13 @@ public:
         if (!p_images_stream.is_open())
             std::cerr << "Error loading image file " << images << "!" << std::endl;
 
-        p_output_stream.open(ouput.c_str());
+        p_output_stream.open(output.c_str());
         if (!p_output_stream.is_open())
-            std::cerr << "Error opening output file " << ouput << "!" << std::endl;
+            std::cerr << "Error opening output file " << output << "!" << std::endl;
+
+        if (!segmentations.empty()) {
+            p_segmentation_stream.open(segmentations);
+        }
     }
 
     ~VOT()
@@ -162,11 +166,24 @@ public:
         return 1;
     }
 
+    inline int getNextSegmentation(cv::Mat & img)
+    {
+        if (p_segmentation_stream.eof() || !p_segmentation_stream.is_open())
+            return -1;
+
+        std::string line;
+        std::getline (p_segmentation_stream, line);
+        if (line.empty() && p_segmentation_stream.eof()) return -1;
+        img = cv::imread(line, CV_LOAD_IMAGE_UNCHANGED);
+        return 1;
+    }
+
 private:
     std::vector<VOTPolygon> p_polygons;
     size_t p_polygon_ptr;
     std::ifstream p_region_stream;
     std::ifstream p_images_stream;
+    std::ifstream p_segmentation_stream;
     std::ofstream p_output_stream;
 
 };

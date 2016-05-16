@@ -30,6 +30,9 @@ public:
     void predict_background(cv::Mat & img0, cv::Mat & img1, cv::Mat & mask, cv::Rect & prev_bbox, bool uncertain = false);
     void set_rectangle(const cv::Rect & rect, bool uncertain = false);
 
+    // Should be called after setImageAndWinName and setRectInMask
+    void set_mask(const cv::Mat & mask);
+
 private:
     //consts. and vars for plotting
     const cv::Scalar P_RED = cv::Scalar(0,0,255);
@@ -56,6 +59,8 @@ private:
     //mats for grabcut
     cv::Mat p_mask, p_bgdModel, p_fgdModel;
     cv::Mat p_mask_valid_fg, p_mask_valid_bg;
+    bool p_recompute_mask = true;
+    cv::Mat p_mask_cached;
 
     double p_rect_size_ratio = 1.1;
     double p_roi_rect_size_ratio = 2.0;
