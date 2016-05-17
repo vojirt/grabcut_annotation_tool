@@ -79,7 +79,7 @@ int main( int argc, char** argv )
     } else if (argc >= 3) {
         //using vot
         std::string seg_file = "";
-        if (argc >= 4)
+        if (argc > 4)
             seg_file = argv[4];
 
         vot.reset(new VOT{argv[2], argv[1], "output.txt", seg_file});
