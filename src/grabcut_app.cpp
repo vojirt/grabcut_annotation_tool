@@ -408,9 +408,9 @@ void Grabcut_app::predict_background(cv::Mat & img0, cv::Mat & img1, cv::Mat & m
         if (status[i] == 1 && p_rect.contains(corners_i1[i])) {
             if (mask0.at<uchar>(corners_i0[i].y, corners_i0[i].x) == 0) {
                 //prob bg pixel
-                cv::circle( p_mask, corners_i1[i], m_radius, cv::GC_BGD, p_thickness );
+                cv::circle( p_mask, corners_i1[i], 1, cv::GC_BGD, p_thickness );
             } else {
-                cv::circle( p_mask, corners_i1[i], m_radius, cv::GC_FGD, p_thickness );
+                cv::circle( p_mask, corners_i1[i], 1, cv::GC_FGD, p_thickness );
             }
         }
     }
