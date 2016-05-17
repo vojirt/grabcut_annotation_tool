@@ -276,10 +276,8 @@ void Grabcut_app::mouseClick( int event, int x, int y, int flags, void* )
                 showImage();
             } else if( p_labeling_state == IN_PROCESS ) {
                 setLblsInMask(flags, cv::Point(x,y), false);
-                showImage();
             } else if( p_pr_labeling_state == IN_PROCESS ) {
                 setLblsInMask(flags, cv::Point(x,y), true);
-                showImage();
             }
             break;
     }
