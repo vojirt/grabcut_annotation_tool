@@ -97,25 +97,24 @@ void Grabcut_app::showImage(int number)
     if (number >= 0)
         p_number = number;
 
-    cv::Mat res;
     if( !p_is_initialized )
-        p_image->copyTo( res );
+        p_image->copyTo( p_res_cached );
     else
     {
         if (m_overlay)
-            res = (*p_image).clone();
+            p_res_cached = (*p_image).clone();
         else
-            res = 0.3*(*p_image);
+            p_res_cached = 0.3*(*p_image);
 
         if (p_recompute_mask) {
             getBinMask(p_mask, p_mask_cached);
             p_recompute_mask = false;
         }
-        p_image->copyTo( res, p_mask_cached );
+        p_image->copyTo( p_res_cached, p_mask_cached );
     }
 
     std::vector<cv::Point>::const_iterator it;
-    cv::Mat circle_overlay = res.clone();
+    cv::Mat circle_overlay = p_res_cached.clone();
 
     // show size of marking tool
     for( it = p_bgdPxls.begin(); it != p_bgdPxls.end(); ++it )
@@ -132,44 +131,45 @@ void Grabcut_app::showImage(int number)
         //cv::rectangle(circle_overlay, cv::Point(p_roi_rect.x, p_roi_rect.y), cv::Point(p_roi_rect.x + p_roi_rect.width, p_roi_rect.y + p_roi_rect.height), P_RED, 1);
     }
 
-    res = 0.5*res + 0.5*circle_overlay;
+    p_res_cached = 0.5*p_res_cached + 0.5*circle_overlay;
 
 
     if (m_show_enclosing_rest){
         cv::Point2f vertices[4];
         m_enclosing_rect.points(vertices);
         for (int i = 0; i < 3; i++)
-            line(res, vertices[i], vertices[(i+1)], P_BLUE);
-        line(res, vertices[3], vertices[0], P_BLUE);
+            line(p_res_cached, vertices[i], vertices[(i+1)], P_BLUE);
+        line(p_res_cached, vertices[3], vertices[0], P_BLUE);
     }
 
     if (m_validation) {
-        cv::Mat b(res.size(), CV_8UC1), g(res.size(), CV_8UC1), r(res.size(), CV_8UC1);
+        cv::Mat b(p_res_cached.size(), CV_8UC1), g(p_res_cached.size(), CV_8UC1), r(p_res_cached.size(), CV_8UC1);
         std::vector<cv::Mat> mat_arr = {b, g, r};
-        cv::split(res, mat_arr);
+        cv::split(p_res_cached, mat_arr);
         double ratio = m_valid_ratio_opacity;
         if (!m_overlay)
             ratio = 0.5*ratio;
 
         cv::max(g, p_mask_valid_fg*ratio, g);
         cv::max(r, p_mask_valid_bg*ratio, r);
-        cv::merge(mat_arr, res);
+        cv::merge(mat_arr, p_res_cached);
     }
 
     if (p_number >= 0) {
         std::stringstream s; std::string num;
         s << "#" << p_number;
         s >> num;
-        cv::putText(res, num, cvPoint(5,15), cv::FONT_HERSHEY_COMPLEX_SMALL, 0.8, cvScalar(218,218,40), 1, CV_AA);
+        cv::putText(p_res_cached, num, cvPoint(5,15), cv::FONT_HERSHEY_COMPLEX_SMALL, 0.8, cvScalar(218,218,40), 1, CV_AA);
     }
 
     //show size of the mark tool
     std::stringstream s; std::string num;
     s << "r:" << m_radius;
     s >> num;
-    cv::putText(res, num, cvPoint(res.cols-55,15), cv::FONT_HERSHEY_COMPLEX_SMALL, 0.8, cvScalar(218,218,40), 1, CV_AA);
+    cv::putText(p_res_cached, num, cvPoint(p_res_cached.cols-55,15), cv::FONT_HERSHEY_COMPLEX_SMALL, 0.8, cvScalar(218,218,40), 1, CV_AA);
 
-    cv::imshow( *p_win_name, res );
+    cv::imshow( *p_win_name, p_res_cached );
+    p_disp_counter = 0;
 }
 
 void Grabcut_app::setRectInMask()
@@ -276,11 +276,35 @@ void Grabcut_app::mouseClick( int event, int x, int y, int flags, void* )
                 showImage();
             } else if( p_labeling_state == IN_PROCESS ) {
                 setLblsInMask(flags, cv::Point(x,y), false);
+                if (p_disp_counter % 2 == 0) show_temporal_pts(cv::Point(x,y), flags);
             } else if( p_pr_labeling_state == IN_PROCESS ) {
                 setLblsInMask(flags, cv::Point(x,y), true);
+                if (p_disp_counter % 2 == 0) show_temporal_pts(cv::Point(x,y), flags);
             }
+            p_disp_counter++;
             break;
     }
+}
+
+void Grabcut_app::show_temporal_pts(const cv::Point & pt, int flags)
+{
+    int xmin = std::max(pt.x - m_radius, 0);
+    int xmax = std::min(pt.x + m_radius, p_res_cached.cols);
+    int ymin = std::max(pt.y - m_radius, 0);
+    int ymax = std::min(pt.y + m_radius, p_res_cached.rows);
+
+    cv::Scalar color = (flags & P_BGD_KEY) ? P_BLUE : P_RED;
+
+    for (int y = ymin; y < ymax; ++y){
+        cv::Vec3b * pixel = p_res_cached.ptr<cv::Vec3b>(y);
+        for (int x = xmin; x < xmax; ++x){
+            pixel[x][2] = static_cast<uchar>(0.8*pixel[x][2] + 0.2*color[2]);
+            pixel[x][1] = static_cast<uchar>(0.8*pixel[x][1] + 0.2*color[1]);;
+            pixel[x][0] = static_cast<uchar>(0.8*pixel[x][0] + 0.2*color[0]);;
+        }
+    }
+
+    cv::imshow( *p_win_name, p_res_cached );
 }
 
 void Grabcut_app::nextIter()

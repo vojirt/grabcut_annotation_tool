@@ -61,6 +61,8 @@ private:
     cv::Mat p_mask_valid_fg, p_mask_valid_bg;
     bool p_recompute_mask = true;
     cv::Mat p_mask_cached;
+    cv::Mat p_res_cached;
+    int p_disp_counter = 0;
 
     double p_rect_size_ratio = 1.1;
     double p_roi_rect_size_ratio = 2.0;
@@ -72,6 +74,7 @@ private:
     void setRectInMask();
     void setLblsInMask( int flags, cv::Point p, bool isPr );
     void getBinMask( const cv::Mat & comMask, cv::Mat & binMask);
+    void show_temporal_pts(const cv::Point & pt, int flags);
 
     cv::Mat cyclshift(const cv::Mat &patch, int x_rot, int y_rot);
     void enlarge_bbox(cv::Rect & bbox, double expand_factor);
