@@ -16,6 +16,7 @@ public:
     bool m_show_enclosing_rest = false;
     bool m_validation = false;
     double m_valid_ratio_opacity = 1.0;
+    double m_image_opacity = 0.3;
     int m_radius = 2;
 
     //minimum area rotated rectangle for the segmentation

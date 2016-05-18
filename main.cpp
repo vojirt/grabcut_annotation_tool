@@ -56,6 +56,7 @@ int main( int argc, char** argv )
             "\te - toggle on/off enclosing rectangle in visualization\n"
             "\tv - toggle on/off validation visualization\n"
             "\t-, + - decrease/increase opacity of validation visualization\n"
+            "\t{, } - decrease/increase opacity of image overlay\n"
             "\t[, ] - decrease/increase size of the mark tool\n"
             "\tf - skip current frame\n"
             "\n"
@@ -150,6 +151,18 @@ int main( int argc, char** argv )
                 gcapp.m_valid_ratio_opacity += 0.1;
                 if (gcapp.m_valid_ratio_opacity > 1.)
                     gcapp.m_valid_ratio_opacity = 1.;
+                gcapp.showImage();
+                break;}
+            case '{':{
+                gcapp.m_image_opacity -= 0.1;
+                if (gcapp.m_image_opacity < 0.3)
+                    gcapp.m_image_opacity = 0.3;
+                gcapp.showImage();
+                break;}
+            case '}':{
+                gcapp.m_image_opacity += 0.1;
+                if (gcapp.m_image_opacity > 0.9)
+                    gcapp.m_image_opacity = 0.9;
                 gcapp.showImage();
                 break;}
             case '[':{

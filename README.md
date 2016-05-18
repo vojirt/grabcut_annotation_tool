@@ -41,8 +41,9 @@ Hot keys:
 - **t**: toggle on/off full image opacity overlay in visualization
 - **e**: toggle on/off enclosing rectangle in visualization
 - **v**: toggle on/off validation visualization
-- **-**, **+** - decrease/increase opacity of validation visualization
-- **[**, **]** - decrease/increase size of the mark tool
+- **-**, **+**: decrease/increase opacity of validation visualization
+- **{**, **}**: decrease/increase opacity of image overlay
+- **[**, **]**: decrease/increase size of the mark tool
 - **f**: skip current frame
 - **left mouse button**: set rectangle
 - **CTRL+left mouse button**:  set BACKGROUND pixels

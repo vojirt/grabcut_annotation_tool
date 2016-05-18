@@ -104,7 +104,7 @@ void Grabcut_app::showImage(int number)
         if (m_overlay)
             p_res_cached = (*p_image).clone();
         else
-            p_res_cached = 0.3*(*p_image);
+            p_res_cached = m_image_opacity*(*p_image);
 
         if (p_recompute_mask) {
             getBinMask(p_mask, p_mask_cached);
