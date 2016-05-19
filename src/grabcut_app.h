@@ -60,7 +60,6 @@ private:
     //mats for grabcut
     cv::Mat p_mask, p_bgdModel, p_fgdModel;
     cv::Mat p_mask_valid_fg, p_mask_valid_bg;
-    bool p_recompute_mask = true;
     cv::Mat p_mask_cached;
     cv::Mat p_res_cached;
     int p_disp_counter = 0;

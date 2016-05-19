@@ -106,10 +106,6 @@ void Grabcut_app::showImage(int number)
         else
             p_res_cached = m_image_opacity*(*p_image);
 
-        if (p_recompute_mask) {
-            getBinMask(p_mask, p_mask_cached);
-            p_recompute_mask = false;
-        }
         p_image->copyTo( p_res_cached, p_mask_cached );
     }
 
@@ -192,7 +188,8 @@ void Grabcut_app::setRectInMask()
         p_roi_rect.height = p_roi_rect.height - (p_roi_rect.y + p_roi_rect.height - p_image->rows) -1;
 
     (p_mask(p_rect)).setTo( cv::Scalar(cv::GC_PR_FGD) );
-    p_recompute_mask = true;
+
+    getBinMask(p_mask, p_mask_cached);
 }
 
 void Grabcut_app::setLblsInMask( int flags, cv::Point p, bool isPr )
@@ -330,21 +327,19 @@ void Grabcut_app::nextIter()
     p_bgdPxls.clear(); p_fgdPxls.clear();
     p_prBgdPxls.clear(); p_prFgdPxls.clear();
 
-    p_recompute_mask = true;
-
     //clear contour
-    cv::Mat binMask = p_mask & 1;
+    getBinMask(p_mask, p_mask_cached);
 
     //create mask of inside foreground using erode and background using dilate
     p_mask_valid_fg.setTo(0);
     p_mask_valid_bg.setTo(0);
     cv::Mat element = cv::getStructuringElement(cv::MORPH_RECT,
                                                 cv::Size(9, 9));
-    cv::dilate(binMask, p_mask_valid_bg, element);
+    cv::dilate(p_mask_cached, p_mask_valid_bg, element);
     cv::threshold(p_mask_valid_bg(p_roi_rect), p_mask_valid_bg(p_roi_rect),
                   0, 255, cv::THRESH_BINARY_INV);
 
-    cv::erode(binMask, p_mask_valid_fg, element);
+    cv::erode(p_mask_cached, p_mask_valid_fg, element);
     cv::threshold(p_mask_valid_fg, p_mask_valid_fg, 0, 255,
                   cv::THRESH_BINARY);
 
