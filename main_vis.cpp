@@ -100,7 +100,7 @@ int main(int argc, char ** argv)
         }
 
         //create visualization
-        cv::Mat res(roi.height, roi.width*2, CV_8UC3);
+        cv::Mat res(roi.height, roi.width*3, CV_8UC3);
         res.setTo(0);
         //copy segmented image to left half
         img(roi).copyTo(res(cv::Rect(0,0, roi.width, roi.height)), segmentation(roi));
@@ -121,11 +121,15 @@ int main(int argc, char ** argv)
         cv::split(img*0.7, mat_arr);
         cv::max(g, mask_valid_fg*0.7, g);
         cv::max(r, mask_valid_bg*0.9, r);
-        cv::merge(mat_arr, img);
+        cv::Mat img_tmp;
+        cv::merge(mat_arr, img_tmp);
 
         //copy segmented image to left half
-        cv::Rect shifted_roi(roi.width, 0, roi.width, roi.height);
-        img(roi).copyTo(res(shifted_roi));
+        img_tmp(roi).copyTo(res(cv::Rect(roi.width,0, roi.width, roi.height)));
+
+        //plot contours
+        drawContours( img, contours, -1, CV_RGB(0, 255, 0), 1, 8);
+        img(roi).copyTo(res(cv::Rect(2*roi.width,0, roi.width, roi.height)));
 
         //show frame number
         std::stringstream s; std::string num;
