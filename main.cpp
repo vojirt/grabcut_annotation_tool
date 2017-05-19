@@ -68,7 +68,7 @@ int main( int argc, char** argv )
 //            "\tCTRL+right mouse button - set GC_PR_BGD pixels\n"
 //            "\tSHIFT+right mouse button - set GC_PR_FGD pixels\n" << std::endl;
 
-    const cv::string winName = "image";
+    const cv::String winName = "image";
     cv::Mat image, segmentation_mask;
     std::unique_ptr<VOT> vot;
     int output_file_number = 0;
